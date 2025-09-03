@@ -111,5 +111,41 @@
     }
   });
 </script>
+
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    try {
+      // Wrap the original draw function
+      if (typeof gml_Script_s_obj_player_draw_begin === "function") {
+        const originalDraw = gml_Script_s_obj_player_draw_begin;
+
+        gml_Script_s_obj_player_draw_begin = function() {
+          try {
+            // scale down drawing when roster is big
+            if (typeof _sp !== "undefined" && _sp.length > 12) {
+              // shrink everything
+              gml_SurfaceScale = 0.8; // make cards ~80% of normal
+            }
+            originalDraw.apply(this, arguments);
+            gml_SurfaceScale = 1.0; // reset after draw
+          } catch (e) {
+            console.error("Roster draw patch error:", e);
+            originalDraw.apply(this, arguments);
+          }
+        };
+
+        console.log("✅ Patched s_obj_player_draw_begin to scale roster cards.");
+      } else {
+        console.warn("⚠️ Draw function not found yet.");
+      }
+    } catch (e) {
+      console.error("Patch failed:", e);
+    }
+  }, 2000);
+});
+</script>
+
+    
   </body>
 </html>
